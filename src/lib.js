@@ -80,6 +80,7 @@
         this.linkFillColor = options.linkFillColor || '';
         this.lineColor = options.lineColor || '#00F';
         this.textColor = options.textColor || '#000';
+        this.fontSize = options.fontSize || 14;
     }
 
     LinkMap.prototype.isRowNeighbor = function (current, target) {
@@ -281,9 +282,9 @@
 
         context.textAlign = 'center';
         context.textBaseline = 'middle';
-        context.font = '14pt Calibri';
+        context.font = this.fontSize + 'px Calibri';
         context.fillStyle = this.textColor;
-        wrapText(this.context, el.name || el.id.toString(), el.x + el.width / 2, el.y + el.height / 2, el.width * 0.8, 16);
+        wrapText(this.context, el.name || el.id.toString(), el.x + el.width / 2, el.y + el.height / 2, el.width * 0.8, parseInt(this.fontSize * 1.2));
         context.restore();
     };
 
