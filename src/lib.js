@@ -282,7 +282,7 @@
 
         context.textAlign = 'center';
         context.textBaseline = 'middle';
-        context.font = this.fontSize + 'px Calibri';
+        context.font = this.fontSize + 'pt Calibri';
         context.fillStyle = this.textColor;
         wrapText(this.context, el.name || el.id.toString(), el.x + el.width / 2, el.y + el.height / 2, el.width * 0.8, parseInt(this.fontSize * 1.2));
         context.restore();
