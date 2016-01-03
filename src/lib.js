@@ -79,6 +79,7 @@
         this.linkBorderColor = options.linkBorderColor || '#0F0';
         this.linkFillColor = options.linkFillColor || '';
         this.lineColor = options.lineColor || '#00F';
+        this.textColor = options.textColor || '#000';
     }
 
     LinkMap.prototype.isRowNeighbor = function (current, target) {
@@ -247,6 +248,25 @@
         }
     };
 
+    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        var line = '';
+
+        for (var n = 0; n < text.length; n++) {
+            var testLine = line + text[n] + ' ';
+            var metrics = context.measureText(testLine);
+            var testWidth = metrics.width;
+            if (testWidth > maxWidth && n > 0) {
+                context.fillText(line, x, y);
+                line = text[n] + ' ';
+                y += lineHeight;
+            }
+            else {
+                line = testLine;
+            }
+        }
+        context.fillText(line, x, y);
+    }
+
     LinkMap.prototype.drawElement = function (el) {
         var context = this.context;
         context.save();
@@ -261,7 +281,9 @@
 
         context.textAlign = 'center';
         context.textBaseline = 'middle';
-        context.fillText(el.name || el.id, el.x + el.width / 2, el.y + el.height / 2);
+        context.font = '14pt Calibri';
+        context.fillStyle = this.textColor;
+        wrapText(this.context, el.name || el.id.toString(), el.x + el.width / 2, el.y + el.height / 2, el.width * 0.8, 16);
         context.restore();
     };
 
