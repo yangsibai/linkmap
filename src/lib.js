@@ -74,6 +74,11 @@
         this.context = options.context;
         this.channelWidth = options.channelWidth;
         this.channelHeight = options.channelHeight;
+        this.borderColor = options.borderColor || '#F00';
+        this.fillColor = options.fillColor || '';
+        this.linkBorderColor = options.linkBorderColor || '#0F0';
+        this.linkFillColor = options.linkFillColor || '';
+        this.lineColor = options.lineColor || '#00F';
     }
 
     LinkMap.prototype.isRowNeighbor = function (current, target) {
@@ -245,9 +250,15 @@
     LinkMap.prototype.drawElement = function (el) {
         var context = this.context;
         context.save();
-        context.strokeStyle = '#f00';
+        context.strokeStyle = this.borderColor;
         context.beginPath();
         context.strokeRect(el.x, el.y, el.width, el.height);
+
+        if (this.fillColor) {
+            context.fillStyle = this.fillColor;
+            context.fillRect(el.x, el.y, el.width, el.height);
+        }
+
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.fillText(el.name || el.id, el.x + el.width / 2, el.y + el.height / 2);
@@ -257,15 +268,20 @@
     LinkMap.prototype.drawLink = function (link) {
         var context = this.context;
         context.save();
-        context.strokeStyle = '#0f0';
+        context.strokeStyle = this.linkBorderColor;
         context.strokeRect(link.x, link.y, link.width, link.height);
+
+        if (this.linkFillColor) {
+            context.fillStyle = this.linkFillColor;
+            context.fillRect(link.x, link.y, link.width, link.height);
+        }
         context.restore();
     };
 
     LinkMap.prototype.drawPaths = function (idealPaths) {
         var context = this.context;
         context.save();
-        context.strokeStyle = '#00f';
+        context.strokeStyle = this.lineColor;
         context.beginPath();
         var startPoint = idealPaths[0];
         context.moveTo(startPoint.x, startPoint.y);
@@ -305,7 +321,6 @@
         var context = this.context;
         var takeUpLines = [];
 
-        context.strokeStyle = '#f00';
         convertRelativePositionToAbsolute(elements);
 
         function correctPaths(paths) {

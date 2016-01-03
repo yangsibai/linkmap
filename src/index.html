@@ -222,7 +222,12 @@
   var linkMap = new LinkMap({
     context: context,
     channelWidth: 50,
-    channelHeight: 50
+    channelHeight: 50,
+    borderColor: '#f00',
+    fillColor: 'rgba(100,0,0,.1)',
+    linkBorderColor: '#0f0',
+    linkFillColor: 'rgba(0,255,0,0.3)',
+    lineColor: '#333'
   });
   linkMap.draw(elements);
   console.log('draw finish.');
