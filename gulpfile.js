@@ -33,7 +33,7 @@ gulp.task('js_html', function () {
     }).pipe(gulp.dest('dist'));
 });
 
-gulp.task('publish', ['clean-scripts'], function () {
+gulp.task('publish', function () {
     return gulp.src([
         './src/lib.js'
     ], {

@@ -250,7 +250,7 @@
         context.strokeRect(el.x, el.y, el.width, el.height);
         context.textAlign = 'center';
         context.textBaseline = 'middle';
-        context.fillText(el.id.toString(), el.x + el.width / 2, el.y + el.height / 2);
+        context.fillText(el.name || el.id, el.x + el.width / 2, el.y + el.height / 2);
         context.restore();
     };
 
@@ -273,24 +273,26 @@
         idealPaths.forEach(function (point, idx) {
             if (idx > 0) {
                 context.lineTo(point.x, point.y);
-                if (point.x === lastPoint.x) {
-                    if (point.y < lastPoint.y) {
-                        context.lineTo(point.x - 4, point.y + 4);
-                        context.moveTo(point.x + 4, point.y + 4);
+                if (idx === idealPaths.length - 1) {
+                    if (point.x === lastPoint.x) {
+                        if (point.y < lastPoint.y) {
+                            context.lineTo(point.x - 4, point.y + 4);
+                            context.moveTo(point.x + 4, point.y + 4);
+                        } else {
+                            context.lineTo(point.x - 4, point.y - 4);
+                            context.moveTo(point.x + 4, point.y - 4);
+                        }
+                        context.lineTo(point.x, point.y);
                     } else {
-                        context.lineTo(point.x - 4, point.y - 4);
-                        context.moveTo(point.x + 4, point.y - 4);
+                        if (point.x < lastPoint.x) { // left arrow
+                            context.lineTo(point.x + 4, point.y - 4);
+                            context.moveTo(point.x + 4, point.y + 4);
+                        } else {
+                            context.lineTo(point.x - 4, point.y - 4);
+                            context.moveTo(point.x - 4, point.y + 4);
+                        }
+                        context.lineTo(point.x, point.y);
                     }
-                    context.lineTo(point.x, point.y);
-                } else {
-                    if (point.x < lastPoint.x) { // left arrow
-                        context.lineTo(point.x + 4, point.y - 4);
-                        context.moveTo(point.x + 4, point.y + 4);
-                    } else {
-                        context.lineTo(point.x - 4, point.y - 4);
-                        context.moveTo(point.x - 4, point.y + 4);
-                    }
-                    context.lineTo(point.x, point.y);
                 }
                 lastPoint = point;
             }
