@@ -48,7 +48,7 @@
         return false;
     }
 
-    function correctForPath(paths, takedLines) {
+    function correctForPath(paths, takedLines, lineDelta) {
         for (var i = 1; i < paths.length; i++) {
             var line = {
                 start: paths[i - 1],
@@ -58,11 +58,11 @@
                 var takedLine = takedLines[j];
                 if (isCoincide(line, takedLine)) {
                     if (isHorizontal(line)) {
-                        paths[i - 1].y -= 4;
-                        paths[i].y -= 4;
+                        paths[i - 1].y -= lineDelta;
+                        paths[i].y -= lineDelta;
                     } else {
-                        paths[i - 1].x -= 4;
-                        paths[i].x -= 4;
+                        paths[i - 1].x -= lineDelta;
+                        paths[i].x -= lineDelta;
                     }
                 }
             }
@@ -70,17 +70,35 @@
         return paths;
     }
 
+    function defaultStr(val, defau) {
+        if (typeof val === 'string') {
+            return val;
+        }
+        return defau;
+    }
+
+    function defaultNum(val, defau) {
+        if (typeof val === 'number') {
+            return val;
+        }
+        return defau;
+    }
+
     function LinkMap(options) {
+        if (!options.context) {
+            throw new Error('require a 2d context');
+        }
         this.context = options.context;
-        this.channelWidth = options.channelWidth;
-        this.channelHeight = options.channelHeight;
-        this.borderColor = options.borderColor || '#F00';
-        this.fillColor = options.fillColor || '';
-        this.linkBorderColor = options.linkBorderColor || '#0F0';
-        this.linkFillColor = options.linkFillColor || '';
-        this.lineColor = options.lineColor || '#00F';
-        this.textColor = options.textColor || '#000';
-        this.fontSize = options.fontSize || 14;
+        this.channelWidth = defaultNum(options.channelWidth, 50);
+        this.channelHeight = defaultNum(options.channelHeight, 50);
+        this.borderColor = defaultStr(options.borderColor, '#F00');
+        this.fillColor = defaultStr(options.fillColor, '');
+        this.linkBorderColor = defaultStr(options.linkBorderColor, '#0F0');
+        this.linkFillColor = defaultStr(options.linkFillColor, '');
+        this.lineColor = defaultStr(options.lineColor, '#00F');
+        this.textColor = defaultStr(options.textColor, '#000');
+        this.fontSize = defaultNum(options.fontSize, 14);
+        this.lineDelta = defaultNum(options.lineDelta, 4);
     }
 
     LinkMap.prototype.isRowNeighbor = function (current, target) {
@@ -271,9 +289,11 @@
     LinkMap.prototype.drawElement = function (el) {
         var context = this.context;
         context.save();
-        context.strokeStyle = this.borderColor;
-        context.beginPath();
-        context.strokeRect(el.x, el.y, el.width, el.height);
+        if (this.borderColor) {
+            context.strokeStyle = this.borderColor;
+            context.beginPath();
+            context.strokeRect(el.x, el.y, el.width, el.height);
+        }
 
         if (this.fillColor) {
             context.fillStyle = this.fillColor;
@@ -309,26 +329,27 @@
         var startPoint = idealPaths[0];
         context.moveTo(startPoint.x, startPoint.y);
         var lastPoint = startPoint;
+        var lineDelta = this.lineDelta;
         idealPaths.forEach(function (point, idx) {
             if (idx > 0) {
                 context.lineTo(point.x, point.y);
                 if (idx === idealPaths.length - 1) {
                     if (point.x === lastPoint.x) {
                         if (point.y < lastPoint.y) {
-                            context.lineTo(point.x - 4, point.y + 4);
-                            context.moveTo(point.x + 4, point.y + 4);
+                            context.lineTo(point.x - lineDelta, point.y + lineDelta);
+                            context.moveTo(point.x + lineDelta, point.y + lineDelta);
                         } else {
-                            context.lineTo(point.x - 4, point.y - 4);
-                            context.moveTo(point.x + 4, point.y - 4);
+                            context.lineTo(point.x - lineDelta, point.y - lineDelta);
+                            context.moveTo(point.x + lineDelta, point.y - lineDelta);
                         }
                         context.lineTo(point.x, point.y);
                     } else {
                         if (point.x < lastPoint.x) { // left arrow
-                            context.lineTo(point.x + 4, point.y - 4);
-                            context.moveTo(point.x + 4, point.y + 4);
+                            context.lineTo(point.x + lineDelta, point.y - lineDelta);
+                            context.moveTo(point.x + lineDelta, point.y + lineDelta);
                         } else {
-                            context.lineTo(point.x - 4, point.y - 4);
-                            context.moveTo(point.x - 4, point.y + 4);
+                            context.lineTo(point.x - lineDelta, point.y - lineDelta);
+                            context.moveTo(point.x - lineDelta, point.y + lineDelta);
                         }
                         context.lineTo(point.x, point.y);
                     }
@@ -352,7 +373,7 @@
                 return paths;
             }
             for (var i = 0; i < takeUpLines.length; i++) {
-                paths = correctForPath(paths, takeUpLines[i]);
+                paths = correctForPath(paths, takeUpLines[i], this.lineDelta);
             }
             takeUpLines.push(convertPathsToLines(paths));
             return paths;
