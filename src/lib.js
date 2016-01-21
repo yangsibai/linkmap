@@ -99,6 +99,7 @@
         this.textColor = defaultStr(options.textColor, '#000');
         this.fontSize = defaultNum(options.fontSize, 14);
         this.lineDelta = defaultNum(options.lineDelta, 4);
+        this.lineWidth = defaultNum(options.lineWidth, 1);
     }
 
     LinkMap.prototype.isRowNeighbor = function (current, target) {
@@ -300,11 +301,13 @@
             context.fillRect(el.x, el.y, el.width, el.height);
         }
 
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-        context.font = this.fontSize + 'pt Calibri';
-        context.fillStyle = this.textColor;
-        wrapText(this.context, el.name || el.id.toString(), el.x + el.width / 2, el.y + el.height / 2, el.width * 0.8, parseInt(this.fontSize * 1.2));
+        if (el.name) {
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.font = this.fontSize + 'pt Calibri';
+            context.fillStyle = this.textColor;
+            wrapText(this.context, el.name, el.x + el.width / 2, el.y + el.height / 2, el.width * 0.8, parseInt(this.fontSize * 1.2));
+        }
         context.restore();
     };
 
@@ -325,6 +328,7 @@
         var context = this.context;
         context.save();
         context.strokeStyle = this.lineColor;
+        context.lineWidth = this.lineWidth;
         context.beginPath();
         var startPoint = idealPaths[0];
         context.moveTo(startPoint.x, startPoint.y);
@@ -364,6 +368,7 @@
     LinkMap.prototype.draw = function (elements) {
         var context = this.context;
         var takeUpLines = [];
+        var lineDelta = this.lineDelta;
 
         convertRelativePositionToAbsolute(elements);
 
@@ -373,7 +378,7 @@
                 return paths;
             }
             for (var i = 0; i < takeUpLines.length; i++) {
-                paths = correctForPath(paths, takeUpLines[i], this.lineDelta);
+                paths = correctForPath(paths, takeUpLines[i], lineDelta);
             }
             takeUpLines.push(convertPathsToLines(paths));
             return paths;
