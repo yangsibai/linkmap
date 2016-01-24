@@ -111,9 +111,17 @@
     };
 
     LinkMap.prototype.findIdealPaths = function (current, target, link) {
-        var channelHeight, channelWidth, startPoint, endPoint, startPointOnChannel, endPointOnChannel, crossPoint;
+        var channelHeight,
+            channelWidth,
+            startPoint,
+            endPoint,
+            startPointOnChannel,
+            endPointOnChannel,
+            crossPoint,
+            lineDelta;
         channelWidth = this.channelWidth;
         channelHeight = this.channelHeight;
+        lineDelta = this.lineDelta;
         if (isSameRow(current, target)) { // same row
             if (this.isRowNeighbor(current, target)) { // neighborhood
                 if (current.x < target.x) {
@@ -144,7 +152,7 @@
             };
             startPointOnChannel = {
                 x: startPoint.x,
-                y: current.y + current.height + channelHeight / 2
+                y: current.y + current.height + channelHeight - lineDelta
             };
             endPoint = {
                 x: target.x + target.width / 2,
@@ -152,12 +160,13 @@
             };
             endPointOnChannel = {
                 x: endPoint.x,
-                y: endPoint.y + channelHeight / 2
+                y: startPointOnChannel.y
             };
             return [
                 startPoint, startPointOnChannel, endPointOnChannel, endPoint
             ];
         }
+
         if (isSameColumn(current, target)) { // same column
             if (this.isColumnNeighbor(current, target)) { // neighborhood
                 if (current.y < target.y) {
@@ -186,7 +195,7 @@
                 y: link.y + link.height / 2
             };
             startPointOnChannel = {
-                x: current.x + current.width + channelWidth / 2,
+                x: current.x + current.width + channelWidth - lineDelta,
                 y: startPoint.y
             };
             endPointOnChannel = {
@@ -199,13 +208,14 @@
             };
             return [startPoint, startPointOnChannel, endPointOnChannel, endPoint];
         }
+
         if (current.x < target.x) {
             startPoint = {
                 x: link.x + link.width,
                 y: link.y + link.height / 2
             };
             startPointOnChannel = {
-                x: current.x + current.width + channelWidth / 2,
+                x: current.x + current.width + channelWidth - lineDelta,
                 y: startPoint.y
             };
             if (current.y < target.y) {
@@ -215,7 +225,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y - channelHeight / 2
+                    y: endPoint.y - lineDelta
                 };
             } else {
                 endPoint = {
@@ -224,7 +234,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y + channelHeight / 2
+                    y: endPoint.y + channelHeight - lineDelta
                 };
             }
             crossPoint = {
@@ -238,7 +248,7 @@
                 y: link.y + link.height / 2
             };
             startPointOnChannel = {
-                x: current.x - channelWidth / 2,
+                x: current.x - lineDelta,
                 y: startPoint.y
             };
             if (current.y < target.y) {
@@ -248,7 +258,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y - channelHeight / 2
+                    y: endPoint.y - lineDelta
                 }
             } else {
                 endPoint = {
@@ -257,7 +267,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y + channelHeight / 2
+                    y: endPoint.y + channelHeight - lineDelta
                 };
             }
             crossPoint = {
