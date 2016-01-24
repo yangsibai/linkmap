@@ -58,11 +58,11 @@
                 var takedLine = takedLines[j];
                 if (isCoincide(line, takedLine)) {
                     if (isHorizontal(line)) {
-                        paths[i - 1].y -= lineDelta;
-                        paths[i].y -= lineDelta;
+                        paths[i - 1].y += lineDelta;
+                        paths[i].y += lineDelta;
                     } else {
-                        paths[i - 1].x -= lineDelta;
-                        paths[i].x -= lineDelta;
+                        paths[i - 1].x += lineDelta;
+                        paths[i].x += lineDelta;
                     }
                 }
             }
@@ -152,7 +152,7 @@
             };
             startPointOnChannel = {
                 x: startPoint.x,
-                y: current.y + current.height + channelHeight - lineDelta
+                y: current.y + current.height + lineDelta
             };
             endPoint = {
                 x: target.x + target.width / 2,
@@ -195,7 +195,7 @@
                 y: link.y + link.height / 2
             };
             startPointOnChannel = {
-                x: current.x + current.width + channelWidth - lineDelta,
+                x: current.x + current.width + lineDelta,
                 y: startPoint.y
             };
             endPointOnChannel = {
@@ -215,7 +215,7 @@
                 y: link.y + link.height / 2
             };
             startPointOnChannel = {
-                x: current.x + current.width + channelWidth - lineDelta,
+                x: current.x + current.width + lineDelta,
                 y: startPoint.y
             };
             if (current.y < target.y) {
@@ -225,7 +225,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y - lineDelta * 2
+                    y: endPoint.y - channelHeight + lineDelta
                 };
             } else {
                 endPoint = {
@@ -234,7 +234,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y + channelHeight - lineDelta
+                    y: endPoint.y + lineDelta
                 };
             }
             crossPoint = {
@@ -248,7 +248,7 @@
                 y: link.y + link.height / 2
             };
             startPointOnChannel = {
-                x: current.x - lineDelta * 2,
+                x: current.x - channelWidth + lineDelta,
                 y: startPoint.y
             };
             if (current.y < target.y) {
@@ -258,7 +258,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y - lineDelta * 2
+                    y: endPoint.y - channelHeight + lineDelta
                 }
             } else {
                 endPoint = {
@@ -267,7 +267,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y + channelHeight - lineDelta
+                    y: endPoint.y + lineDelta
                 };
             }
             crossPoint = {
