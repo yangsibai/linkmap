@@ -225,7 +225,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y - lineDelta
+                    y: endPoint.y - lineDelta * 2
                 };
             } else {
                 endPoint = {
@@ -248,7 +248,7 @@
                 y: link.y + link.height / 2
             };
             startPointOnChannel = {
-                x: current.x - lineDelta,
+                x: current.x - lineDelta * 2,
                 y: startPoint.y
             };
             if (current.y < target.y) {
@@ -258,7 +258,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y - lineDelta
+                    y: endPoint.y - lineDelta * 2
                 }
             } else {
                 endPoint = {
