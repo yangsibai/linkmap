@@ -334,10 +334,15 @@
         context.restore();
     };
 
-    LinkMap.prototype.drawPaths = function (idealPaths) {
+    LinkMap.prototype.drawPaths = function (idealPaths, lineColor) {
         var context = this.context;
         context.save();
-        context.strokeStyle = this.lineColor;
+        console.log(lineColor);
+        if (lineColor) {
+            context.strokeStyle = lineColor;
+        } else {
+            context.strokeStyle = this.lineColor;
+        }
         context.lineWidth = this.lineWidth;
         context.beginPath();
         var startPoint = idealPaths[0];
@@ -406,7 +411,7 @@
                 if (target) {
                     var idealPaths = this.findIdealPaths(el, target, link);
                     var paths = correctPaths(idealPaths);
-                    this.drawPaths(paths);
+                    this.drawPaths(paths, el.lineColor);
                 }
             }.bind(this));
         }.bind(this));
