@@ -28,9 +28,236 @@
   </style>
 </head>
 <body>
+<button id="prev">Previous</button>
+<button id="next">Next</button>
 <canvas id="can" width="600" height="600"></canvas>
 <script>
   var context = document.getElementById('can').getContext('2d');
+  //  var elements = [
+  //    {
+  //      id: 0,
+  //      x: 0,
+  //      y: 0,
+  //      width: 100,
+  //      height: 100,
+  //      links: [
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 20,
+  //          height: 20,
+  //          target: 1
+  //        },
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 20,
+  //          height: 20,
+  //          target: 2
+  //        },
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 20,
+  //          height: 20,
+  //          target: 2
+  //        },
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 20,
+  //          height: 20,
+  //          target: 2
+  //        },
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 20,
+  //          height: 20,
+  //          target: 2
+  //        }
+  //      ]
+  //    },
+  //    {
+  //      id: 1,
+  //      x: 150,
+  //      y: 0,
+  //      width: 100,
+  //      height: 100,
+  //      links: [
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 20,
+  //          height: 20,
+  //          target: 4
+  //        },
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 20,
+  //          height: 50,
+  //          target: 7
+  //        }
+  //      ]
+  //    },
+  //    {
+  //      id: 2,
+  //      x: 300,
+  //      y: 0,
+  //      width: 100,
+  //      height: 100,
+  //      links: [
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 20,
+  //          height: 20,
+  //          target: 0
+  //        },
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 20,
+  //          height: 50,
+  //          target: 1
+  //        }
+  //      ]
+  //    },
+  //    {
+  //      id: 3,
+  //      x: 0,
+  //      y: 150,
+  //      width: 100,
+  //      height: 100,
+  //      links: [
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 20,
+  //          height: 20,
+  //          target: 11
+  //        }
+  //      ]
+  //    },
+  //    {
+  //      id: 4,
+  //      x: 150,
+  //      y: 150,
+  //      width: 100,
+  //      height: 100,
+  //      links: [
+  //        {
+  //          x: 50,
+  //          y: 50,
+  //          width: 30,
+  //          height: 30,
+  //          target: 1
+  //        }
+  //      ]
+  //    },
+  //    {
+  //      id: 5,
+  //      x: 300,
+  //      y: 150,
+  //      width: 100,
+  //      height: 100,
+  //      links: [
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 10,
+  //          height: 10,
+  //          target: 9
+  //        }
+  //      ]
+  //    },
+  //    {
+  //      id: 6,
+  //      x: 0,
+  //      y: 300,
+  //      width: 100,
+  //      height: 100,
+  //      links: []
+  //    },
+  //    {
+  //      id: 7,
+  //      x: 150,
+  //      y: 300,
+  //      width: 100,
+  //      height: 100,
+  //      links: [
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 40,
+  //          height: 40,
+  //          target: 1
+  //        }
+  //      ]
+  //    },
+  //    {
+  //      id: 8,
+  //      x: 300,
+  //      y: 300,
+  //      width: 100,
+  //      height: 100
+  //    },
+  //    {
+  //      id: 9,
+  //      x: 0,
+  //      y: 450,
+  //      width: 100,
+  //      height: 100,
+  //      lineColor: '#00F',
+  //      links: [
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 10,
+  //          height: 10,
+  //          target: 5
+  //        }
+  //      ]
+  //    },
+  //    {
+  //      name: 'longgggggggggggggggggggggggggggggggg',
+  //      id: 10,
+  //      x: 150,
+  //      y: 450,
+  //      width: 100,
+  //      height: 100
+  //    },
+  //    {
+  //      id: 11,
+  //      x: 300,
+  //      y: 450,
+  //      width: 100,
+  //      height: 100,
+  //      lineColor: '#0F0',
+  //      links: [
+  //        {
+  //          x: 30,
+  //          y: 30,
+  //          width: 20,
+  //          height: 20,
+  //          target: 3
+  //        }
+  //      ]
+  //    }
+  //  ];
+  //  var linkMap = new LinkMap({
+  //    context: context,
+  //    channelWidth: 50,
+  //    channelHeight: 50,
+  //    borderColor: '#f00',
+  //    fillColor: 'rgba(100,0,0,.1)',
+  //    linkBorderColor: '#0f0',
+  //    linkFillColor: 'rgba(0,255,0,0.3)',
+  //    lineColor: '#333',
+  //    fontSize: 14
+  //  });
+
   var elements = [
     {
       id: 0,
@@ -39,12 +266,33 @@
       width: 100,
       height: 100,
       links: [
+//        {
+//          x: 30,
+//          y: 30,
+//          width: 20,
+//          height: 20,
+//          target: 1
+//        },
+//        {
+//          x: 30,
+//          y: 30,
+//          width: 20,
+//          height: 20,
+//          target: 1
+//        },
+//        {
+//          x: 30,
+//          y: 30,
+//          width: 20,
+//          height: 20,
+//          target: 1
+//        },
         {
           x: 30,
           y: 30,
           width: 20,
           height: 20,
-          target: 1
+          target: 2
         },
         {
           x: 30,
@@ -52,7 +300,21 @@
           width: 20,
           height: 20,
           target: 2
-        }
+        },
+//        {
+//          x: 30,
+//          y: 30,
+//          width: 20,
+//          height: 20,
+//          target: 2
+//        },
+//        {
+//          x: 30,
+//          y: 30,
+//          width: 20,
+//          height: 20,
+//          target: 2
+//        }
       ]
     },
     {
@@ -61,22 +323,7 @@
       y: 0,
       width: 100,
       height: 100,
-      links: [
-        {
-          x: 30,
-          y: 30,
-          width: 20,
-          height: 20,
-          target: 4
-        },
-        {
-          x: 30,
-          y: 30,
-          width: 20,
-          height: 50,
-          target: 7
-        }
-      ]
+      links: []
     },
     {
       id: 2,
@@ -84,22 +331,7 @@
       y: 0,
       width: 100,
       height: 100,
-      links: [
-        {
-          x: 30,
-          y: 30,
-          width: 20,
-          height: 20,
-          target: 0
-        },
-        {
-          x: 30,
-          y: 30,
-          width: 20,
-          height: 50,
-          target: 1
-        }
-      ]
+      links: []
     },
     {
       id: 3,
@@ -107,15 +339,7 @@
       y: 150,
       width: 100,
       height: 100,
-      links: [
-        {
-          x: 30,
-          y: 30,
-          width: 20,
-          height: 20,
-          target: 11
-        }
-      ]
+      links: []
     },
     {
       id: 4,
@@ -123,15 +347,7 @@
       y: 150,
       width: 100,
       height: 100,
-      links: [
-        {
-          x: 50,
-          y: 50,
-          width: 30,
-          height: 30,
-          target: 1
-        }
-      ]
+      links: []
     },
     {
       id: 5,
@@ -139,15 +355,7 @@
       y: 150,
       width: 100,
       height: 100,
-      links: [
-        {
-          x: 30,
-          y: 30,
-          width: 10,
-          height: 10,
-          target: 9
-        }
-      ]
+      links: []
     },
     {
       id: 6,
@@ -163,15 +371,7 @@
       y: 300,
       width: 100,
       height: 100,
-      links: [
-        {
-          x: 30,
-          y: 30,
-          width: 40,
-          height: 40,
-          target: 1
-        }
-      ]
+      links: []
     },
     {
       id: 8,
@@ -187,15 +387,7 @@
       width: 100,
       height: 100,
       lineColor: '#00F',
-      links: [
-        {
-          x: 30,
-          y: 30,
-          width: 10,
-          height: 10,
-          target: 5
-        }
-      ]
+      links: []
     },
     {
       name: 'longgggggggggggggggggggggggggggggggg',
@@ -212,15 +404,7 @@
       width: 100,
       height: 100,
       lineColor: '#0F0',
-      links: [
-        {
-          x: 30,
-          y: 30,
-          width: 20,
-          height: 20,
-          target: 3
-        }
-      ]
+      links: []
     }
   ];
   var linkMap = new LinkMap({
@@ -232,10 +416,20 @@
     linkBorderColor: '#0f0',
     linkFillColor: 'rgba(0,255,0,0.3)',
     lineColor: '#333',
-    fontSize: 14
+    fontSize: 14,
+    canvasWidth: 600,
+    canvasHeight: 600
   });
   linkMap.draw(elements);
   console.log('draw finish.');
+  var btnNext = document.getElementById("next");
+  var btnPrevious = document.getElementById("prev");
+  btnNext.addEventListener("click", function () {
+    linkMap.drawNext();
+  });
+  btnPrevious.addEventListener("click", function () {
+    linkMap.drawPrevious();
+  });
 </script>
 </body>
 </html>

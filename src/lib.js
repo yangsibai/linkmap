@@ -48,28 +48,6 @@
         return false;
     }
 
-    function correctForPath(paths, takedLines, lineDelta) {
-        for (var i = 1; i < paths.length; i++) {
-            var line = {
-                start: paths[i - 1],
-                end: paths[i]
-            };
-            for (var j = 0; j < takedLines.length; j++) {
-                var takedLine = takedLines[j];
-                if (isCoincide(line, takedLine)) {
-                    if (isHorizontal(line)) {
-                        paths[i - 1].y += lineDelta;
-                        paths[i].y += lineDelta;
-                    } else {
-                        paths[i - 1].x += lineDelta;
-                        paths[i].x += lineDelta;
-                    }
-                }
-            }
-        }
-        return paths;
-    }
-
     function defaultStr(val, defau) {
         if (typeof val === 'string') {
             return val;
@@ -100,6 +78,8 @@
         this.fontSize = defaultNum(options.fontSize, 14);
         this.lineDelta = defaultNum(options.lineDelta, 4);
         this.lineWidth = defaultNum(options.lineWidth, 1);
+        this.canvasWidth = options.canvasWidth;
+        this.canvasHeight = options.canvasHeight;
     }
 
     LinkMap.prototype.isRowNeighbor = function (current, target) {
@@ -111,17 +91,9 @@
     };
 
     LinkMap.prototype.findIdealPaths = function (current, target, link) {
-        var channelHeight,
-            channelWidth,
-            startPoint,
-            endPoint,
-            startPointOnChannel,
-            endPointOnChannel,
-            crossPoint,
-            lineDelta;
+        var channelHeight, channelWidth, startPoint, endPoint, startPointOnChannel, endPointOnChannel, crossPoint;
         channelWidth = this.channelWidth;
         channelHeight = this.channelHeight;
-        lineDelta = this.lineDelta;
         if (isSameRow(current, target)) { // same row
             if (this.isRowNeighbor(current, target)) { // neighborhood
                 if (current.x < target.x) {
@@ -133,6 +105,7 @@
                         x: target.x,
                         y: startPoint.y
                     };
+                    return [startPoint, endPoint];
                 } else {
                     startPoint = {
                         x: link.x,
@@ -152,7 +125,7 @@
             };
             startPointOnChannel = {
                 x: startPoint.x,
-                y: current.y + current.height + lineDelta
+                y: current.y + current.height + channelHeight / 2
             };
             endPoint = {
                 x: target.x + target.width / 2,
@@ -160,13 +133,12 @@
             };
             endPointOnChannel = {
                 x: endPoint.x,
-                y: startPointOnChannel.y
+                y: endPoint.y + channelHeight / 2
             };
             return [
                 startPoint, startPointOnChannel, endPointOnChannel, endPoint
             ];
         }
-
         if (isSameColumn(current, target)) { // same column
             if (this.isColumnNeighbor(current, target)) { // neighborhood
                 if (current.y < target.y) {
@@ -195,7 +167,7 @@
                 y: link.y + link.height / 2
             };
             startPointOnChannel = {
-                x: current.x + current.width + lineDelta,
+                x: current.x + current.width + channelWidth / 2,
                 y: startPoint.y
             };
             endPointOnChannel = {
@@ -208,14 +180,13 @@
             };
             return [startPoint, startPointOnChannel, endPointOnChannel, endPoint];
         }
-
         if (current.x < target.x) {
             startPoint = {
                 x: link.x + link.width,
                 y: link.y + link.height / 2
             };
             startPointOnChannel = {
-                x: current.x + current.width + lineDelta,
+                x: current.x + current.width + channelWidth / 2,
                 y: startPoint.y
             };
             if (current.y < target.y) {
@@ -225,7 +196,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y - channelHeight + lineDelta
+                    y: endPoint.y - channelHeight / 2
                 };
             } else {
                 endPoint = {
@@ -234,7 +205,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y + lineDelta
+                    y: endPoint.y + channelHeight / 2
                 };
             }
             crossPoint = {
@@ -248,7 +219,7 @@
                 y: link.y + link.height / 2
             };
             startPointOnChannel = {
-                x: current.x - channelWidth + lineDelta,
+                x: current.x - channelWidth / 2,
                 y: startPoint.y
             };
             if (current.y < target.y) {
@@ -258,7 +229,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y - channelHeight + lineDelta
+                    y: endPoint.y - channelHeight / 2
                 }
             } else {
                 endPoint = {
@@ -267,7 +238,7 @@
                 };
                 endPointOnChannel = {
                     x: endPoint.x,
-                    y: endPoint.y + lineDelta
+                    y: endPoint.y + channelHeight / 2
                 };
             }
             crossPoint = {
@@ -337,7 +308,6 @@
     LinkMap.prototype.drawPaths = function (idealPaths, lineColor) {
         var context = this.context;
         context.save();
-        console.log(lineColor);
         if (lineColor) {
             context.strokeStyle = lineColor;
         } else {
@@ -380,24 +350,138 @@
         context.restore();
     };
 
+    /**
+     * correct a path
+     * @param paths
+     * @param takedLines
+     * @param lineDelta
+     * @returns {*}
+     */
+    LinkMap.prototype.correctForPath = function (paths) {
+        for (var i = 2; i < paths.length; i++) {
+            var line = {
+                start: paths[i - 1],
+                end: paths[i]
+            };
+            if (i === paths.length - 1) { // head or tail lines
+                //if (isHorizontal(line)) {
+                //    var y = this.secFixLine('h', line.start.y);
+                //    paths[i - 1].y = y;
+                //    paths[i].y = y;
+                //} else {
+                //    var x = this.secFixLine('v', line.start.x);
+                //    paths[i - 1].x = x;
+                //    paths[i].x = x;
+                //}
+                continue;
+            } else {
+                if (isHorizontal(line)) {
+                    console.log('horizontal line');
+                    var y = this.mainFixLine('h', line.start.y);
+                    paths[i - 1].y = y;
+                    paths[i].y = y;
+                } else {
+                    var x = this.mainFixLine('v', line.start.x);
+                    paths[i - 1].x = x;
+                    paths[i].x = x;
+                }
+            }
+        }
+    };
+
+    LinkMap.prototype.recordIdealPaths = function (paths) {
+        var lines = convertPathsToLines(paths);
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            if (i === 0 || i === lines.length - 1) {// head and tail lines
+                if (isHorizontal(line)) {
+                    this.secHLine(line.start.y);
+                } else {
+                    this.secVLine(line.start.x);
+                }
+            } else {
+                if (isHorizontal(line)) {
+                    this.mainHLine(line.start.y);
+                } else {
+                    this.mainVLine(line.start.x);
+                }
+            }
+        }
+    };
+
+    LinkMap.prototype.mainHLine = function (h) {
+        if (this.mainLines.h[h] === undefined) {
+            this.mainLines.h[h] = 0;
+        }
+    };
+
+    LinkMap.prototype.mainVLine = function (v) {
+        if (this.mainLines.v[v] === undefined) {
+            this.mainLines.v[v] = 0;
+        }
+    };
+
+    LinkMap.prototype.secHLine = function (h) {
+        if (this.secLines.h[h] === undefined) {
+            this.secLines.h[h] = 0;
+        }
+    };
+
+    LinkMap.prototype.secVLine = function (v) {
+        if (this.secLines.v[v] === undefined) {
+            this.secLines.v[v] = 0;
+        }
+    };
+
+    LinkMap.prototype.mainFixLine = function (prop, val, retryTimes) {
+        var original = val;
+        var fixed = this.fixLine("mainLines", prop, val, retryTimes);
+        console.log(original, fixed);
+        return fixed;
+    };
+
+    LinkMap.prototype.secFixLine = function (prop, val, retryTimes) {
+        var original = val;
+        var fixed = this.fixLine("secLines", prop, val, retryTimes);
+        console.log("sec fix lines >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:", original, fixed);
+        return fixed;
+    };
+
+    LinkMap.prototype.fixLine = function (store, vOrh, val, retryTimes) {
+        if (retryTimes === undefined) {
+            retryTimes = 3;
+        }
+        if (!this[store][vOrh][val] || retryTimes === 0) { // if didn't taken or first time come or retry max times
+            this[store][vOrh][val] = this[store][vOrh][val] + 1 || 1;
+            return val;
+        }
+        if (this[store][vOrh][val] % 2 === 0) {
+            return this.fixLine(store, vOrh, val + 4, retryTimes - 1);
+        } else {
+            return this.fixLine(store, vOrh, val - 4, retryTimes - 1);
+        }
+    };
+
     LinkMap.prototype.draw = function (elements) {
         var context = this.context;
         var takeUpLines = [];
         var lineDelta = this.lineDelta;
+        var self = this;
+
+        this.elements = elements;
+        this.mainLines = {
+            h: {},
+            v: {}
+        };
+        this.secLines = {
+            h: {},
+            v: {}
+        };
+        this.drawIndex = -1;
 
         convertRelativePositionToAbsolute(elements);
 
-        function correctPaths(paths) {
-            if (takeUpLines.length == 0) {
-                takeUpLines.push(convertPathsToLines(paths));
-                return paths;
-            }
-            for (var i = 0; i < takeUpLines.length; i++) {
-                paths = correctForPath(paths, takeUpLines[i], lineDelta);
-            }
-            takeUpLines.push(convertPathsToLines(paths));
-            return paths;
-        }
+        var pathArray = [];
 
         elements.forEach(function (el) {
             this.drawElement(el);
@@ -409,12 +493,47 @@
                     return item.id === link.target;
                 });
                 if (target) {
-                    var idealPaths = this.findIdealPaths(el, target, link);
-                    var paths = correctPaths(idealPaths);
-                    this.drawPaths(paths, el.lineColor);
+                    (function () {
+                        var idealPaths = self.findIdealPaths(el, target, link);
+                        self.recordIdealPaths(idealPaths);
+                        self.correctForPath(idealPaths);
+                        //correctPaths(idealPaths);
+                        pathArray.push({
+                            lineColor: el.lineColor,
+                            paths: idealPaths
+                        });
+                    }());
                 }
             }.bind(this));
         }.bind(this));
+        pathArray.forEach(function (item) {
+            self.drawPaths(item.paths, item.lineColor);
+        });
+        this.paths = pathArray;
+    };
+
+    LinkMap.prototype.drawNext = function () {
+        if (this.drawIndex === this.paths.length - 1) {
+            return;
+        }
+        this.drawIndex = this.drawIndex + 1;
+        for (var i = 0; i <= this.drawIndex; i++) {
+            this.drawPaths(this.paths[i].paths, this.paths[i].lineColor);
+        }
+    };
+
+    LinkMap.prototype.drawPrevious = function () {
+        var drawIndexCache = this.drawIndex;
+        if (drawIndexCache === -1) {
+            return;
+        }
+        this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        this.draw(this.elements);
+        this.drawIndex = drawIndexCache;
+        this.drawIndex = this.drawIndex - 1;
+        for (var i = 0; i <= this.drawIndex; i++) {
+            this.drawPaths(this.paths[i].paths, this.paths[i].lineColor);
+        }
     };
 
     if (typeof module !== 'undefined' && module.exports) {
