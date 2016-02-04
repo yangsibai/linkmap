@@ -338,31 +338,31 @@
             };
             if (i === 1) { // head or tail lines
                 if (isHorizontal(line)) {
-                    var y = this.findABetterLine('y', line.start.y, parseInt(link.height / 4, 10));
+                    var y = this.findABetterLine('y', line.start.y, parseInt(link.height / 4, 10), line.start.x, line.end.x);
                     paths[i - 1].y = y;
                     paths[i].y = y;
                 } else {
-                    var x = this.findABetterLine('x', line.start.x, parseInt(link.width / 4, 10));
+                    var x = this.findABetterLine('x', line.start.x, parseInt(link.width / 4, 10), line.start.y, line.end.y);
                     paths[i - 1].x = x;
                     paths[i].x = x;
                 }
             } else if (i === paths.length - 1) {
                 if (isHorizontal(line)) {
-                    var y = this.findABetterLine('y', line.start.y, parseInt(el.height / 4, 10));
+                    var y = this.findABetterLine('y', line.start.y, parseInt(el.height / 4, 10), line.start.x, line.end.x);
                     paths[i - 1].y = y;
                     paths[i].y = y;
                 } else {
-                    var x = this.findABetterLine('x', line.start.x, parseInt(el.width / 4, 10));
+                    var x = this.findABetterLine('x', line.start.x, parseInt(el.width / 4, 10), line.start.y, line.end.y);
                     paths[i - 1].x = x;
                     paths[i].x = x;
                 }
             } else {
                 if (isHorizontal(line)) {
-                    var y = this.findABetterLine('y', line.start.y, parseInt(this.channelHeight / 4, 10));
+                    var y = this.findABetterLine('y', line.start.y, parseInt(this.channelHeight / 4, 10), line.start.x, line.end.x);
                     paths[i - 1].y = y;
                     paths[i].y = y;
                 } else {
-                    var x = this.findABetterLine('x', line.start.x, parseInt(this.channelWidth / 4, 10));
+                    var x = this.findABetterLine('x', line.start.x, parseInt(this.channelWidth / 4, 10), line.start.y, line.end.y);
                     paths[i - 1].x = x;
                     paths[i].x = x;
                 }
@@ -370,31 +370,39 @@
         }
     };
 
-    LinkMap.prototype.fixALine = function (prop, val) {
-        if (this.lines[prop][val]) {
-            this.lines[prop][val]++;
-            var consult = parseInt(this.lines[prop][val] / 2, 10);
-            if (this.lines[prop][val] % 2 === 0) {
-                return val + 4 * consult;
-            }
-            return val - 4 * consult;
-        }
-        this.lines[prop][val] = 1;
-        return val;
-    };
-
-    LinkMap.prototype.findABetterLine = function (prop, val, offset) {
+    LinkMap.prototype.findABetterLine = function (prop, val, offset, from, to) {
+        var tmpFrom = Math.min(from, to);
+        var tmpTo = Math.max(from, to);
+        from = tmpFrom;
+        to = tmpTo;
         if (!offset || offset < 4) {
             return val;
         }
+        var self = this;
         if (this.lines[prop][val]) {
-            this.lines[prop][val]++;
-            if (this.lines[prop][val] % 2 === 0) {
-                return this.findABetterLine(prop, val - offset, parseInt(offset / 2, 10));
+            var existedLines = this.lines[prop][val];
+            for (var i = 0; i < existedLines.length; i++) {
+                var line = existedLines[i];
+                if ((from >= line.from && from <= line.to) || (to >= line.from && to <= line.to)) {
+                    self.lines[prop][val][i].count++;
+                    if (self.lines[prop][val][i].count % 2 === 0) {
+                        return this.findABetterLine(prop, val - offset, parseInt(offset / 2, 10), from, to);
+                    }
+                    return this.findABetterLine(prop, val + offset, parseInt(offset / 2, 10), from, to);
+                }
             }
-            return this.findABetterLine(prop, val + offset, parseInt(offset / 2, 10));
+            this.lines[prop][val].push({
+                from: from,
+                to: to,
+                count: 1
+            });
+            return val;
         }
-        this.lines[prop][val] = 1;
+        this.lines[prop][val] = [{
+            from: from,
+            to: to,
+            count: 1
+        }];
         return val;
     };
 
@@ -406,7 +414,6 @@
         var self = this;
         this.elements = elements;
         this.drawIndex = -1;
-
         this.lines = {
             x: {},
             y: {}
