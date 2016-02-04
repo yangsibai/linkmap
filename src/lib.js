@@ -489,7 +489,7 @@
             context.strokeWidth = 1;
             el.links && el.links.forEach(function (link) {
                 this.drawLink(link);
-                var target = elements.find(function (item) {
+                var target = findInArray(elements, function (item) {
                     return item.id === link.target;
                 });
                 if (target) {
@@ -535,6 +535,12 @@
             this.drawPaths(this.paths[i].paths, this.paths[i].lineColor);
         }
     };
+
+    function findInArray(arr, cb) {
+        for (var i = 0; i < arr.length; i++) {
+            if (cb(arr[i])) return arr[i];
+        }
+    }
 
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = LinkMap;
