@@ -17,35 +17,8 @@
         return current.x === target.x;
     }
 
-    function convertPathsToLines(paths) {
-        var lines = [];
-        for (var i = 1; i < paths.length; i++) {
-            lines.push({
-                start: paths[i - 1],
-                end: paths[i]
-            });
-        }
-        return lines;
-    }
-
     function isHorizontal(line) {
         return line.start.y === line.end.y;
-    }
-
-    function isCoincide(line, takedLine) {
-        if (isHorizontal(line)) {
-            if (isHorizontal(takedLine)) {
-                if (line.start.y === takedLine.start.y) {
-                    return true; // TODO: fix this
-                }
-            }
-        }
-        if (!isHorizontal(takedLine)) {
-            if (line.start.x === takedLine.start.x) {
-                return true;
-            }
-        }
-        return false;
     }
 
     function defaultStr(val, defau) {
@@ -357,31 +330,39 @@
      * @param lineDelta
      * @returns {*}
      */
-    LinkMap.prototype.correctForPath = function (paths) {
-        for (var i = 2; i < paths.length; i++) {
+    LinkMap.prototype.correctForPath = function (paths, el, link) {
+        for (var i = 1; i < paths.length; i++) { // skip first line
             var line = {
                 start: paths[i - 1],
                 end: paths[i]
             };
-            if (i === paths.length - 1) { // head or tail lines
-                //if (isHorizontal(line)) {
-                //    var y = this.secFixLine('h', line.start.y);
-                //    paths[i - 1].y = y;
-                //    paths[i].y = y;
-                //} else {
-                //    var x = this.secFixLine('v', line.start.x);
-                //    paths[i - 1].x = x;
-                //    paths[i].x = x;
-                //}
-                continue;
-            } else {
+            if (i === 1) { // head or tail lines
                 if (isHorizontal(line)) {
-                    console.log('horizontal line');
-                    var y = this.mainFixLine('h', line.start.y);
+                    var y = this.findABetterLine('y', line.start.y, parseInt(link.height / 4, 10));
                     paths[i - 1].y = y;
                     paths[i].y = y;
                 } else {
-                    var x = this.mainFixLine('v', line.start.x);
+                    var x = this.findABetterLine('x', line.start.x, parseInt(link.width / 4, 10));
+                    paths[i - 1].x = x;
+                    paths[i].x = x;
+                }
+            } else if (i === paths.length - 1) {
+                if (isHorizontal(line)) {
+                    var y = this.findABetterLine('y', line.start.y, parseInt(el.height / 4, 10));
+                    paths[i - 1].y = y;
+                    paths[i].y = y;
+                } else {
+                    var x = this.findABetterLine('x', line.start.x, parseInt(el.width / 4, 10));
+                    paths[i - 1].x = x;
+                    paths[i].x = x;
+                }
+            } else {
+                if (isHorizontal(line)) {
+                    var y = this.findABetterLine('y', line.start.y, parseInt(this.channelHeight / 4, 10));
+                    paths[i - 1].y = y;
+                    paths[i].y = y;
+                } else {
+                    var x = this.findABetterLine('x', line.start.x, parseInt(this.channelWidth / 4, 10));
                     paths[i - 1].x = x;
                     paths[i].x = x;
                 }
@@ -389,95 +370,47 @@
         }
     };
 
-    LinkMap.prototype.recordIdealPaths = function (paths) {
-        var lines = convertPathsToLines(paths);
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            if (i === 0 || i === lines.length - 1) {// head and tail lines
-                if (isHorizontal(line)) {
-                    this.secHLine(line.start.y);
-                } else {
-                    this.secVLine(line.start.x);
-                }
-            } else {
-                if (isHorizontal(line)) {
-                    this.mainHLine(line.start.y);
-                } else {
-                    this.mainVLine(line.start.x);
-                }
+    LinkMap.prototype.fixALine = function (prop, val) {
+        if (this.lines[prop][val]) {
+            this.lines[prop][val]++;
+            var consult = parseInt(this.lines[prop][val] / 2, 10);
+            if (this.lines[prop][val] % 2 === 0) {
+                return val + 4 * consult;
             }
+            return val - 4 * consult;
         }
+        this.lines[prop][val] = 1;
+        return val;
     };
 
-    LinkMap.prototype.mainHLine = function (h) {
-        if (this.mainLines.h[h] === undefined) {
-            this.mainLines.h[h] = 0;
-        }
-    };
-
-    LinkMap.prototype.mainVLine = function (v) {
-        if (this.mainLines.v[v] === undefined) {
-            this.mainLines.v[v] = 0;
-        }
-    };
-
-    LinkMap.prototype.secHLine = function (h) {
-        if (this.secLines.h[h] === undefined) {
-            this.secLines.h[h] = 0;
-        }
-    };
-
-    LinkMap.prototype.secVLine = function (v) {
-        if (this.secLines.v[v] === undefined) {
-            this.secLines.v[v] = 0;
-        }
-    };
-
-    LinkMap.prototype.mainFixLine = function (prop, val, retryTimes) {
-        var original = val;
-        var fixed = this.fixLine("mainLines", prop, val, retryTimes);
-        console.log(original, fixed);
-        return fixed;
-    };
-
-    LinkMap.prototype.secFixLine = function (prop, val, retryTimes) {
-        var original = val;
-        var fixed = this.fixLine("secLines", prop, val, retryTimes);
-        console.log("sec fix lines >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:", original, fixed);
-        return fixed;
-    };
-
-    LinkMap.prototype.fixLine = function (store, vOrh, val, retryTimes) {
-        if (retryTimes === undefined) {
-            retryTimes = 3;
-        }
-        if (!this[store][vOrh][val] || retryTimes === 0) { // if didn't taken or first time come or retry max times
-            this[store][vOrh][val] = this[store][vOrh][val] + 1 || 1;
+    LinkMap.prototype.findABetterLine = function (prop, val, offset) {
+        if (!offset || offset < 4) {
             return val;
         }
-        if (this[store][vOrh][val] % 2 === 0) {
-            return this.fixLine(store, vOrh, val + 4, retryTimes - 1);
-        } else {
-            return this.fixLine(store, vOrh, val - 4, retryTimes - 1);
+        if (this.lines[prop][val]) {
+            this.lines[prop][val]++;
+            if (this.lines[prop][val] % 2 === 0) {
+                return this.findABetterLine(prop, val - offset, parseInt(offset / 2, 10));
+            }
+            return this.findABetterLine(prop, val + offset, parseInt(offset / 2, 10));
         }
+        this.lines[prop][val] = 1;
+        return val;
     };
 
     LinkMap.prototype.draw = function (elements) {
+        if (!elements || elements.length === 0) {
+            return;
+        }
         var context = this.context;
-        var takeUpLines = [];
-        var lineDelta = this.lineDelta;
         var self = this;
-
         this.elements = elements;
-        this.mainLines = {
-            h: {},
-            v: {}
-        };
-        this.secLines = {
-            h: {},
-            v: {}
-        };
         this.drawIndex = -1;
+
+        this.lines = {
+            x: {},
+            y: {}
+        };
 
         convertRelativePositionToAbsolute(elements);
 
@@ -495,9 +428,7 @@
                 if (target) {
                     (function () {
                         var idealPaths = self.findIdealPaths(el, target, link);
-                        self.recordIdealPaths(idealPaths);
-                        self.correctForPath(idealPaths);
-                        //correctPaths(idealPaths);
+                        self.correctForPath(idealPaths, el, link);
                         pathArray.push({
                             lineColor: el.lineColor,
                             paths: idealPaths
