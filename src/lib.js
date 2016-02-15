@@ -9,6 +9,10 @@
         });
     }
 
+    function isSelf(current, target) {
+        return current.x === target.x && current.y === target.y && current.width === target.width && current.height === target.height;
+    }
+
     function isSameRow(current, target) {
         return current.y === target.y;
     }
@@ -53,6 +57,7 @@
         this.lineWidth = defaultNum(options.lineWidth, 1);
         this.canvasWidth = options.canvasWidth;
         this.canvasHeight = options.canvasHeight;
+        this.debug = options.debug || false;
     }
 
     LinkMap.prototype.isRowNeighbor = function (current, target) {
@@ -67,6 +72,19 @@
         var channelHeight, channelWidth, startPoint, endPoint, startPointOnChannel, endPointOnChannel, crossPoint;
         channelWidth = this.channelWidth;
         channelHeight = this.channelHeight;
+
+        if (isSelf(current, target)) {
+            startPoint = {
+                x: link.x + link.width / 2,
+                y: link.y
+            };
+            endPoint = {
+                x: startPoint.x,
+                y: current.y
+            };
+            return [startPoint, endPoint];
+        }
+
         if (isSameRow(current, target)) { // same row
             if (this.isRowNeighbor(current, target)) { // neighborhood
                 if (current.x < target.x) {
@@ -407,6 +425,7 @@
     };
 
     LinkMap.prototype.draw = function (elements) {
+        var start = new Date();
         if (!elements || elements.length === 0) {
             return;
         }
@@ -448,6 +467,9 @@
             self.drawPaths(item.paths, item.lineColor);
         });
         this.paths = pathArray;
+        if (this.debug) {
+            console.log(new Date() - start + 'ms');
+        }
     };
 
     LinkMap.prototype.drawNext = function () {
